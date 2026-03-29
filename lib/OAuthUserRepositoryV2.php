@@ -32,8 +32,19 @@ class OAuthUserRepositoryV2
         $healthAccountId = isset($profile['account_id']) ? (string)$profile['account_id'] : null;
         $nameTh = isset($profile['name_th']) ? (string)$profile['name_th'] : null;
         $nameEng = isset($profile['name_eng']) ? (string)$profile['name_eng'] : null;
-        $positionName = isset($profile['position']) ? (string)$profile['position'] : (isset($profile['position_name']) ? (string)$profile['position_name'] : null);
+        $positionName = $this->resolveProviderPositionName($profile);
         $positionType = isset($profile['position_type']) ? (string)$profile['position_type'] : null;
+        if (($positionType === '' || $positionType === null) && !empty($profile['organization']) && is_array($profile['organization'])) {
+            foreach ($profile['organization'] as $organization) {
+                if (!is_array($organization)) {
+                    continue;
+                }
+                if (!empty($organization['position_type'])) {
+                    $positionType = (string)$organization['position_type'];
+                    break;
+                }
+            }
+        }
 
         if ($existing) {
             $userId = (int)$existing['id'];
@@ -210,5 +221,54 @@ class OAuthUserRepositoryV2
             $stmt->close();
             $isDefault = 0;
         }
+    }
+
+    private function resolveProviderPositionName($profile)
+    {
+        if (isset($profile['position']) && trim((string)$profile['position']) !== '') {
+            return (string)$profile['position'];
+        }
+        if (isset($profile['position_name']) && trim((string)$profile['position_name']) !== '') {
+            return (string)$profile['position_name'];
+        }
+        if (isset($profile['position_type']) && trim((string)$profile['position_type']) !== '') {
+            return (string)$profile['position_type'];
+        }
+
+        if (!empty($profile['organization']) && is_array($profile['organization'])) {
+            foreach ($profile['organization'] as $organization) {
+                if (!is_array($organization)) {
+                    continue;
+                }
+                if (!empty($organization['position'])) {
+                    return (string)$organization['position'];
+                }
+                if (!empty($organization['position_name'])) {
+                    return (string)$organization['position_name'];
+                }
+                if (!empty($organization['position_type'])) {
+                    return (string)$organization['position_type'];
+                }
+            }
+        }
+
+        if (!empty($profile['organizations']) && is_array($profile['organizations'])) {
+            foreach ($profile['organizations'] as $organization) {
+                if (!is_array($organization)) {
+                    continue;
+                }
+                if (!empty($organization['position'])) {
+                    return (string)$organization['position'];
+                }
+                if (!empty($organization['position_name'])) {
+                    return (string)$organization['position_name'];
+                }
+                if (!empty($organization['position_type'])) {
+                    return (string)$organization['position_type'];
+                }
+            }
+        }
+
+        return null;
     }
 }

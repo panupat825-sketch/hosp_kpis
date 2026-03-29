@@ -33,6 +33,72 @@ function v2_set_legacy_session($sessionUser, $role)
     $_SESSION['department'] = isset($sessionUser['hcode']) ? $sessionUser['hcode'] : '';
 }
 
+function v2_find_legacy_user($conn, $sessionUser)
+{
+    $candidates = array();
+
+    $providerId = isset($sessionUser['provider_id']) ? trim((string) $sessionUser['provider_id']) : '';
+    $nameTh = isset($sessionUser['name_th']) ? trim((string) $sessionUser['name_th']) : '';
+    $nameEng = isset($sessionUser['name_eng']) ? trim((string) $sessionUser['name_eng']) : '';
+
+    foreach (array($providerId, $nameTh, $nameEng) as $value) {
+        if ($value !== '') {
+            $candidates[] = $value;
+        }
+    }
+
+    $candidates = array_values(array_unique($candidates));
+    if (empty($candidates)) {
+        return null;
+    }
+
+    foreach ($candidates as $candidate) {
+        $stmt = mysqli_prepare($conn, "SELECT id, username, fullname, position, department, division, role FROM tb_users WHERE username = ? LIMIT 1");
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, 's', $candidate);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $row = $result ? mysqli_fetch_assoc($result) : null;
+            mysqli_stmt_close($stmt);
+            if ($row) {
+                return $row;
+            }
+        }
+    }
+
+    foreach ($candidates as $candidate) {
+        $stmt = mysqli_prepare($conn, "SELECT id, username, fullname, position, department, division, role FROM tb_users WHERE fullname = ? LIMIT 1");
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, 's', $candidate);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $row = $result ? mysqli_fetch_assoc($result) : null;
+            mysqli_stmt_close($stmt);
+            if ($row) {
+                return $row;
+            }
+        }
+    }
+
+    return null;
+}
+
+function v2_apply_legacy_user_session($legacyUser, $sessionUser, $fallbackRole)
+{
+    if (!is_array($legacyUser) || empty($legacyUser['id'])) {
+        v2_set_legacy_session($sessionUser, $fallbackRole);
+        return;
+    }
+
+    $_SESSION['user_id'] = (int) $legacyUser['id'];
+    $_SESSION['username'] = isset($legacyUser['username']) ? (string) $legacyUser['username'] : $sessionUser['provider_id'];
+    $_SESSION['fullname'] = isset($legacyUser['fullname']) && $legacyUser['fullname'] !== '' ? (string) $legacyUser['fullname'] : $sessionUser['name_th'];
+    $_SESSION['role'] = isset($legacyUser['role']) && $legacyUser['role'] !== '' ? (string) $legacyUser['role'] : $fallbackRole;
+    $_SESSION['position'] = isset($legacyUser['position']) && $legacyUser['position'] !== '' ? (string) $legacyUser['position'] : (isset($sessionUser['position_name']) ? $sessionUser['position_name'] : '');
+    $_SESSION['department'] = isset($legacyUser['department']) && $legacyUser['department'] !== '' ? (string) $legacyUser['department'] : (isset($sessionUser['hcode']) ? $sessionUser['hcode'] : '');
+    $_SESSION['division'] = isset($legacyUser['division']) ? (string) $legacyUser['division'] : '';
+}
+
 function v2_index_path($config)
 {
     return $config['app']['base_path'] . '/index.php';
@@ -123,7 +189,8 @@ function v2_login_with_health_fallback($users, $health, $message, $config, $heal
     $_SESSION['health_only_login'] = 1;
     $_SESSION['health_only_reason'] = $message;
     $_SESSION['oauth_v2_health'] = isset($health['raw']) ? $health['raw'] : array();
-    v2_set_legacy_session($sessionUser, 'user');
+    $legacyUser = v2_find_legacy_user($GLOBALS['conn'], $sessionUser);
+    v2_apply_legacy_user_session($legacyUser, $sessionUser, 'user');
 
     v2_redirect(v2_index_path($config));
 }
@@ -204,6 +271,7 @@ $_SESSION['roles'] = array('user');
 $_SESSION['login_time'] = time();
 $_SESSION['last_activity'] = time();
 $_SESSION['oauth_v2_last_profile'] = $profile['raw'];
-v2_set_legacy_session($sessionUser, 'user');
+$legacyUser = v2_find_legacy_user($conn, $sessionUser);
+v2_apply_legacy_user_session($legacyUser, $sessionUser, 'user');
 
 v2_redirect(v2_index_path($config));

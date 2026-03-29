@@ -106,15 +106,15 @@ if (!function_exists('kpi_page_header')) {
         kpi_nav_btn('kpi_table.php', 'ตาราง KPI', '📋', $active_nav === 'table');
         ?>
 
-        <div class="relative group">
-          <button class="enterprise-nav-chip inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950">
+        <div class="relative group pb-2 -mb-2">
+          <button type="button" class="enterprise-nav-chip inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950">
             <span>⚙️</span>
             <span>ตั้งค่า</span>
             <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
             </svg>
           </button>
-          <div class="absolute right-0 mt-2 w-64 rounded-3xl bg-white text-slate-800 shadow-2xl ring-1 ring-black/5 hidden group-hover:block z-50 overflow-hidden">
+          <div class="absolute right-0 top-full w-64 rounded-3xl bg-white text-slate-800 shadow-2xl ring-1 ring-black/5 hidden group-hover:block group-focus-within:block z-50 overflow-hidden">
             <a class="block px-4 py-2.5 hover:bg-slate-100" href="strategic_issues.php">ประเด็นยุทธศาสตร์</a>
             <a class="block px-4 py-2.5 hover:bg-slate-100" href="missions.php">เป้าประสงค์</a>
             <a class="block px-4 py-2.5 hover:bg-slate-100" href="strategies.php">กลยุทธ์</a>

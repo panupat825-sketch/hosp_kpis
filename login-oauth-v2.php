@@ -11,11 +11,35 @@ $http = new HttpClient(array(
     'timeout' => 30,
     'verify_ssl' => true,
 ));
-$v2RedirectUri = rtrim($config['app']['base_url'], '/') . $config['app']['base_path'] . '/oauth/callback-v2.php';
+
+$basePath = isset($config['app']['base_path']) ? (string) $config['app']['base_path'] : '';
+$baseUrl = isset($config['app']['base_url']) ? rtrim((string) $config['app']['base_url'], '/') : '';
+$loginActionUrl = $basePath . '/login-oauth-v2.php';
+$indexUrl = $basePath . '/index.php';
+$v2RedirectUri = $baseUrl . $basePath . '/oauth/callback-v2.php';
 $gateway = new OAuthGatewayV2($config, $http, $v2RedirectUri);
 
+if (!function_exists('oauth_v2_random_hex')) {
+    function oauth_v2_random_hex($bytes)
+    {
+        if (function_exists('random_bytes')) {
+            return bin2hex(random_bytes($bytes));
+        }
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $strong = false;
+            $buffer = openssl_random_pseudo_bytes($bytes, $strong);
+            if ($buffer !== false && strlen($buffer) === $bytes) {
+                return bin2hex($buffer);
+            }
+        }
+
+        return md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true));
+    }
+}
+
 if (isset($_GET['action']) && $_GET['action'] === 'start') {
-    $state = bin2hex(random_bytes(16));
+    $state = substr(oauth_v2_random_hex(16), 0, 32);
     $_SESSION['oauth_v2_state'] = $state;
     $_SESSION['oauth_v2_state_time'] = time();
     header('Location: ' . $gateway->buildHealthAuthorizeUrl($state));
@@ -26,7 +50,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'start') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบ KPI Enterprise</title>
+    <title>เข้าสู่ระบบ KPI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/enterprise-ui.css">
 </head>
@@ -78,10 +102,18 @@ if (isset($_GET['action']) && $_GET['action'] === 'start') {
                     </div>
 
                     <div class="mt-8 flex flex-col gap-3">
-                        <a class="enterprise-button enterprise-button-primary justify-center text-base" href="?action=start">เข้าสู่ระบบด้วย Health ID</a>
-                        <a class="enterprise-button enterprise-button-secondary justify-center text-sm" href="index.php">ไปหน้าเริ่มต้นของระบบ</a>
+                        <form action="<?php echo htmlspecialchars($loginActionUrl, ENT_QUOTES, 'UTF-8'); ?>" method="get" class="relative z-20 block">
+                            <input type="hidden" name="action" value="start">
+                            <button type="submit" class="enterprise-button enterprise-button-primary relative z-20 w-full justify-center text-base" style="pointer-events:auto;cursor:pointer;">
+                                เข้าสู่ระบบด้วย Health ID
+                            </button>
+                        </form>
+                        <form action="<?php echo htmlspecialchars($indexUrl, ENT_QUOTES, 'UTF-8'); ?>" method="get" class="relative z-20 block">
+                            <button type="submit" class="enterprise-button enterprise-button-secondary relative z-20 w-full justify-center text-sm" style="pointer-events:auto;cursor:pointer;">
+                                ไปหน้าเริ่มต้นของระบบ
+                            </button>
+                        </form>
                     </div>
-
                 </section>
             </div>
         </div>

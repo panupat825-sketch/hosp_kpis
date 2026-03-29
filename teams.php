@@ -195,6 +195,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: teams.php?team_id={$team_id}&message=" . urlencode("บันทึกสมาชิกทีมเรียบร้อย"));
             exit();
         }
+    } elseif ($form_type === 'reset_memberships') {
+        if (mysqli_query($conn, "DELETE FROM tb_user_team_map")) {
+            @mysqli_query($conn, "DELETE FROM tb_user_teams");
+            header("Location: teams.php?message=" . urlencode("ล้างข้อมูลสมาชิกทีมเดิมเรียบร้อย"));
+            exit();
+        } else {
+            $message = "ล้างข้อมูลสมาชิกทีมเดิมไม่สำเร็จ: " . mysqli_error($conn);
+        }
     }
 }
 
@@ -327,9 +335,10 @@ if ($selected_team_id > 0) {
 /* ----- users ทั้งหมด ----- */
 $users = array();
 $resU = mysqli_query($conn, "
-    SELECT id, username, fullname, department, division, role
-    FROM tb_users
-    ORDER BY fullname, username
+    SELECT u.id, u.username, u.fullname, u.department, u.division, u.role
+    FROM tb_users u
+    INNER JOIN app_user au ON au.provider_id = u.username
+    ORDER BY u.fullname, u.username
 ");
 if ($resU) {
     while ($r = mysqli_fetch_assoc($resU)) {
@@ -350,6 +359,7 @@ if ($selected_team_id > 0 && $selected_team) {
                u.username, u.fullname, u.department, u.division, u.role
         FROM tb_user_team_map ut
         INNER JOIN tb_users u ON u.id = ut.user_id
+        INNER JOIN app_user au ON au.provider_id = u.username
         WHERE ut.team_id = {$selected_team_id}
         ORDER BY u.fullname, u.username
     ";
@@ -401,11 +411,22 @@ mysqli_close($conn);
         กำหนดทีม เช่น PCT, RM, ENV, ทีมคุณภาพ และคลิกชื่อทีมเพื่อดู/แก้ไขสมาชิกในรูปแบบ Modal
       </p>
     </div>
-    <?php if ($message !== ''): ?>
-      <span class="text-xs md:text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl shadow-sm">
-        <?php echo h($message); ?>
-      </span>
-    <?php endif; ?>
+    <div class="flex flex-wrap items-center gap-2">
+      <form method="post" class="inline-flex">
+        <input type="hidden" name="form_type" value="reset_memberships">
+        <input type="hidden" name="csrf_token" value="<?php echo h(csrf_token()); ?>">
+        <button type="submit"
+                class="inline-flex items-center rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600"
+                onclick="return confirm('ระบบจะล้างสมาชิกทีมเดิมทั้งหมด เพื่อให้เริ่มกำหนดทีมใหม่ภายหลัง ต้องการดำเนินการต่อหรือไม่?');">
+          ล้างสมาชิกทีมเดิม
+        </button>
+      </form>
+      <?php if ($message !== ''): ?>
+        <span class="text-xs md:text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl shadow-sm">
+          <?php echo h($message); ?>
+        </span>
+      <?php endif; ?>
+    </div>
   </div>
 
   <!-- ฟอร์มทีมด้านบน -->
