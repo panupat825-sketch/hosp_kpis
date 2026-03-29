@@ -1,0 +1,11 @@
+config/oauth.local.php
+config/database.local.php
+config/*.local.php
+
+# Environment-specific overrides
+.env
+.env.*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
