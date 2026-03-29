@@ -1,0 +1,714 @@
+﻿คู่มือการเชื่อมต่อระบบ Provider ID ด้วย OAuth ของ Health ID
+1 กรกฎาคม 2567
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ส่วนที่ 1 : การเชื่อมต่อกับ Health ID
+Health ID API URL
+UAT (สำหรับทดสอบ)
+	https://uat-moph.id.th
+	PRD (สำหรับใช้งานจริง)
+	https://moph.id.th
+	
+
+
+
+
+
+
+
+ขั้นตอนการเชื่อมต่อ        
+
+
+1. สร้างปุ่ม Login บนหน้า Web Application/Mobile Application ของคุณ
+2. แนบ Link Login URL ไปที่ปุ่มในข้อ 1 โดย URL มีรูปแบบดังนี้ (รายละเอียดเพิ่มเติม ที่นี่)
+{HealthID-URL}/oauth/redirect?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code
+	3. เมื่อผู้ใช้งานดำเนินการเข้าสู่ระบบสำเร็จ ระบบจะทำการ redirect กลับไปยัง Redirect URI ที่ Service ได้ระบุไว้ โดยจะแนบ Code ไว้ที่ Parameters เพื่อให้นำไปใช้ตรวจสอบการเข้าสู่ระบบ
+4. Frontend Service ของคุณ ต้องทำการอ่านค่า code จาก URL แล้วส่งให้ Backend ของ Service
+5. Backend Service ของคุณ จะต้องนำ code ที่ได้ ส่งมาตรวจสอบกับ Health ID เพื่อนำ Access Token ไปใช้สำหรับการดึงข้อมูลของผู้ใช้งานต่อไป
+
+
+
+
+
+
+1. Authentication Request        
+Web Application/Mobile Application ของ RP จะส่ง authentication request ด้วย{HealthID-URL}/oauth/redirect?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code โดยระบุ client_id และ redirect_uri ที่ได้ลงทะเบียนไว้กับ Health ID สำเร็จแล้ว
+
+
+GET
+	{HealthID-URL}/oauth/redirect
+	
+
+Request
+Request Params : 
+พารามิเตอร์ (Parameters)
+	จำเป็น
+(Requires)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	client_id
+	Y
+	string
+	client id ที่ได้รับหลังจากการลงทะเบียนกับ Health ID
+	redirect_uri
+	Y
+	string
+	redirect uri ที่ทะเบียนกับ Health ID
+	response_type
+	Y
+	string
+	ระบุคำว่า “code”
+	state
+	N
+	string
+	random string ใช้ในการตรวจสอบความสัมพันธ์ระหว่าง request
+จาก RP กับ response
+	
+
+2. Token Request
+เมื่อ Service ของท่านได้มีการเรียกใช้งานหน้าจอ Login With Health ID  หรือ Login With Provider ID และผู้ใช้งาน กรอกข้อมูลเพื่อเข้าสู่ระบบสำเร็จแล้ว ระบบจะ Redirect พร้อมกับ Return Code ให้ ​Service ของท่านผ่าน URL ท่านสามารถนำ Code ที่ได้ มาใช้สำหรับขอ access token ของผู้ใช้งานจาก API ดังนี้
+
+
+POST
+	{HealthID-URL}/api/v1/token
+	
+
+
+
+Request
+Request Header: 
+Content-type: application/x-www-form-urlencoded
+Request Body: 
+พารามิเตอร์ (Parameters)
+	จำเป็น
+(Requires)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	grant_type
+	Y
+	string
+	ระบุคำว่า “authorization_code”
+	code
+	Y
+	string
+	code ที่ได้รับจาก redirect url ที่ระบบ return ให้หลังจากผู้ใช้งานเข้าสู่ระบบ
+	redirect_uri
+	Y
+	string
+	URI เป็นค่าเดียวกันกับ redirect_uri ใน authentication request
+	client_id
+	Y
+	string
+	client id ที่ได้รับหลังจากการลงทะเบียนกับ Health ID
+	client_secret
+	Y
+	string
+	client_secret ที่ได้รับหลังจากการลงทะเบียนกับ Health ID
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Response
+Response Type: application/json
+พารามิเตอร์ (Parameters)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	token_type
+	string
+	ประเภทของ token
+	expires_in
+	Int
+	เวลาหมดอายุของ token
+	access_token
+	string
+	token ที่ใช้ในการยืนยันตัวตน
+	expiration_date
+	string
+	วันที่และเวลาที่หมดอายุของ token
+	account_id
+	string
+	Identities Number ที่ระบบสร้างให้อัตโนมัติโดยแต่ละคน (ID) ไม่ซ้ำกัน
+	
+
+ตัวอย่าง Response Body:
+        200 OK
+{
+            "status": "success",
+            "data": {
+"access_token": "eyJ0eXAiOiJKV1QiLCJhbGci….",
+"token_type": "Bearer",
+"expires_in": 31535998,
+"account_id": "165902799049006"
+},
+            "message": "You logged in successfully"
+}
+
+
+Error code
+
+
+Code
+	Message
+	Description
+	401
+	Credential is required
+	จำเป็นต้องใส่ข้อมูล
+	422
+	Access grant has denied
+	สิทธิ์การเข้าถึงถูกปฏิเสธ
+	422
+	Code is invalid
+	โค้ดไม่ถูกต้อง
+	422
+	Redirect uri is invalid
+	Redirect uri ไม่ตรงกัน
+	422
+	Code and Client ID not match.
+	โค้ดกับ client id ไม่ตรง
+	422
+	Code has been expired
+	โค้ดหมดอายุ
+	500
+	Server error
+	เซิฟเวอร์มีปัญหา
+	3. API สำหรับขอ Public Key ของ Health ID
+เมื่อ Service ของท่านได้รับ access_token เรียบร้อยแล้ว สามารถดำเนินการ Verify token โดยการดึงข้อมูล Public Key ได้จาก API ดังนี้
+
+
+GET
+	{HealthID-URL}/api/v1/oauth/public-key
+	
+
+Headers
+Request Header: 
+
+
+ชื่อของ Header
+(Key)
+	จำเป็น
+(Requires)
+	ค่าของ Header (Value)
+	คำอธิบาย (Description)
+	Content-type
+	
+
+	application/json
+	
+
+	client-id
+	Y
+	string
+	client id ที่ได้รับหลังจากการลงทะเบียนกับ Health ID
+	secret-key
+	Y
+	string
+	client_secret ที่ได้รับหลังจากการลงทะเบียนกับ Health ID
+	
+
+Response
+Response Type: plain/text
+
+
+พารามิเตอร์ (Parameters)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	public key
+	string
+	Public Key
+	
+
+ตัวอย่าง Response Body:
+
+
+200 OK 
+-----BEGIN PUBLIC KEY-----
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+OpnddMRKQ5vImHrx7kiJw1p0FD4/pUm/uv8rw2SEsse5aVpp35k9N4CS6
+bqZdDgelSwB/2Z0dtpaLTuwqx
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+-----END PUBLIC KEY-----
+
+
+
+
+Error code
+
+
+Code
+	message
+	message_th
+	422
+	Access grant has denied.
+	Client Id, Secret Key ไม่ถูกต้อง
+	
+
+
+
+ส่วนที่ 2 : การเชื่อมต่อกับ Provider ID
+กรณีที่ต้องการ ตรวจสอบการเข้าสู่ระบบด้วย Provider ID จะต้องดำเนินการดังต่อไปนี้
+Porivder ID API URL
+UAT (สำหรับทดสอบ)
+	https://uat-provider.id.th
+	PRD (สำหรับใช้งานจริง)
+	https://provider.id.th
+	
+
+ขั้นตอนการเชื่อมต่อ        
+1. เมื่อได้รับ access_token ของ Health ID แล้ว (รายละเอียดเพิ่มเติม ที่นี่) จำเป็นจะต้องนำมาตรวจสอบสถานะการมี Provider ID โดยสามารถนำมา access_token ของผู้ใช้งานที่เข้าสู่ระบบมาได้ เรียก API สำหรับขอ Access Token ของ Provider ID  (รายละเอียดเพิ่มเติม ที่นี่)
+   1. ในกรณีที่มี Provider ID จะได้ http status 200 OK กลับไป พร้อมข้อมูลของ Provider 
+   2. ในกรณีที่บุคคลนั้นไม่ได้เป็น Provider จะได้ http status 400 Bad Request กลับไป และจะไม่สามารถเข้าใช้งาน Provider ID ได้
+2. นำ access_token ของ Provider ID ที่ได้รับ ใช้ในการดึงข้อมูล Provider ทั้งข้อมูลส่วนตัว และข้อมูลสังกัดการทำงานได้ที่ API สำหรับขอข้อมูล Provider ID (รายละเอียดเพิ่มเติม  ที่นี่) 
+
+
+
+
+1. API สำหรับขอ Access Token ของ Provider ID
+POST
+	{Provider-URL}/api/v1/services/token
+	
+
+Request
+Request Body (JSON): 
+พารามิเตอร์ (Parameters)
+	จำเป็น
+(Requires)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	client_id
+	Y
+	string
+	Client-ID ที่ได้รับจากระบบ Provider ID
+	secret_key
+	Y
+	string
+	Secret-Key ที่ได้รับจากระบบ Provider ID
+	token_by
+	Y
+	string
+	ระบุ “Health ID”
+	token
+	Y
+	string
+	Access token ที่ได้รับจากการเข้าสู่ระบบของ Health ID
+	
+
+Response
+Response Type: application/json
+พารามิเตอร์ (Parameters)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	token_type
+	string
+	ประเภทของ token
+	expires_in
+	Int
+	เวลาหมดอายุของ token
+	access_token
+	string
+	token ที่ใช้ในการยืนยันตัวตน
+	expiration_date
+	string
+	วันที่และเวลาที่หมดอายุของ token
+	account_id
+	string
+	ไอดีของผู้ใช้งาน
+	result
+	string
+	ผลลัพธ์การเรียก API
+	username
+	string
+	username ของผู้ใช้งาน
+	login_by
+	string
+	วิธีการที่ได้รับ access_token
+	
+
+
+
+ตัวอย่าง Response Body:
+
+
+200 OK 
+{
+    "status": 200,
+    "message": "OK",
+    "data": {
+        "token_type": "Bearer",
+        "expires_in": 86400,
+        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImFmZmE1MzE3Yjc3ZWNhNDM4MDRkZWIzODNhODk0MDdhZDUxZDczZjg3OTM4YTBiZTI4ZjczZTA5OWUzYWFlMzc2OTAyMzY5NDg5NjM1Mjk0In0.eyJhSscqZ1svi4068loDR98VPTZ32aPJdkFcTylpVtjFewtiruJingR1wnd3Hlb24hQccJTivWnICUVyWLIjWe8cjhTdHk2yD30cw231qfvJynxsRb2VlQTcAMw6vkg1dhskTNScZA-xlCSDYKWvaaR5AquXdL5TTXLbXnAM5XcxU9HoPKwbQp-jTo5aIOEbP1hwA",
+        "expiration_date": "2023-12-07 19:26:01",
+        "account_id": "2506xxxxx84",
+        "result": "Success",
+        "username": "saxxxxxxth",
+        "login_by": "access_token_health_id"
+    }
+}
+Error code
+
+
+Code
+	message
+	message_th
+	400
+	This user has not provider id
+	ไม่พบข้อมูล provider id 
+	400
+	The requested parameter can not used.
+	ไม่ได้ระบุ token_by , token
+	401
+	Authentication is required to access this resource
+	ไม่ได้ระบุ client id , secret key หรือ client id , secret key ไม่มีในระบบ
+	401
+	Authentication is required to access this resource
+	ไม่ได้ระบุ token_by เป็น "Health ID"
+	500
+	Internal Server Error
+	เซิฟเวอร์มีปัญหา
+	
+
+2. API สำหรับขอข้อมูลส่วนบุคคล และข้อมูลการทำงาน จากระบบ Provider ID
+GET
+	{Provider-URL}/api/v1/services/profile
+	
+
+Request
+Request Header: 
+Content-type: application/json
+Authorization: Bearer {{ provider_access_token จาก Response ของ API ข้อที่ 1 }}
+client-id: Client-ID ที่ได้รับจากระบบ Provider ID
+secret-key: Secret-Key ที่ได้รับจากระบบ Provider ID
+Request Params : 
+พารามิเตอร์ (Parameters)
+	จำเป็น
+(Requires)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	moph_center_token
+	N
+	string
+	ระบุ 1 หากต้องการดึง Token จากระบบ Moph Account Center สำหรับนำไปใช้งาน
+	moph_idp_permission
+	N
+	string
+	ระบุ 1 หากต้องการดึงข้อมูล key is_hr_admin และ is_director จากระบบ Moph IDP สำหรับนำไปใช้งาน
+	position_type
+	N
+	string
+	ระบุ 1 หากต้องการดึงข้อมูล key position_type สำหรับนำไปใช้งาน
+	
+
+Response
+Response Type: application/json
+พารามิเตอร์ (Parameters)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	account_id
+	string
+	เป็น Identities Number ที่ระบบสร้างให้อัตโนมัติโดยแต่ละคน (ID) ไม่ซ้ำกัน
+	hash_cid
+	string
+	เลขบัตรประชาชนที่ Hash ด้วย SHA256
+	provider_id
+	string
+	ข้อมูลเลข Provider id
+	title_th
+	string
+	คำนำหน้าชื่อภาษาไทย
+	special_title_th
+	string
+	คำนำหน้าชื่อทางการแพทย์ภาษาไทย
+	name_th
+	string
+	ชื่อและนามสกุลภาษาไทย
+	name_eng
+	string
+	ชื่อภาษาอังกฤษ
+	created_at
+	string
+	วันที่สร้างข้อมูล
+	title_en
+	string
+	คำนำหน้าภาษาอังกฤษ
+	special_title_name_en
+	string
+	คำนำหน้าชื่อทางการแพทย์ภาษาอังกฤษ
+	firstname_th
+	string
+	ชื่อภาษาไทย
+	lastname_th
+	string
+	นามสกุลภาษาไทย
+	firstname_en
+	string
+	ชื่อภาษาอังกฤษ
+	lastname_en
+	string
+	นามสกุลภาษาอังกฤษ
+	organization.business_id
+	string
+	ข้อมูลเลขรหัสองค์กร
+	organization.position
+	string
+	ข้อมูลตำแหน่ง
+	organization.hcode
+	string
+	ข้อมูลรหัสโรงพยาบาล
+	organization.hname_th
+	string
+	ข้อมูลชื่อองค์กรภาษาไทย
+	organization.hname_eng
+	string
+	ข้อมูลชื่อองค์กรภาษาอังกฤษ
+	organization.tax_id
+	string
+	ข้อมูลเลขที่เสียภาษี
+	organization.license_expired_date
+	string
+	ข้อมูลวันหมดอายุเลขใบประกอบวิชาชีพ
+	organization.license_id_verify
+	bool
+	กรณี true หมายถึง ผ่านการตรวจสอบกับสภาวิชาชีพแล้ว
+กรณี false หมายถึง ยังไม่ผ่านการตรวจสอบจากสภาวิชาชีพ
+	organization.expertise
+	string
+	ข้อมูลวิชาชีพเฉพาะ
+	ref_code
+	string
+	ref_code จาก Station
+	organization.moph_access_token_idp
+	string
+	MOPH-JWT
+	organization.moph_access_token_idp_fdh
+	string
+	MOPH-JWT (fdh) (ขึ้นอยู่กับสิทธิ์ในการขอ Token)
+	organization.moph_access_token_idp_pcu
+	string
+	MOPH-JWT (pcu) (ขึ้นอยู่กับสิทธิ์ในการขอ Token)
+	organization.is_hr_admin
+	string
+	ข้อมูลสิทธในการจัดการหน้า admin
+	organization.is_director
+	string
+	ข้อมูล
+	organization.address.address
+	string
+	ข้อมูลที่อยู่องค์กร
+	organization.address.moo
+	string
+	ข้อมูลหมู่
+	organization.address.building
+	string
+	ข้อมูลอาคาร
+	organization.address.soi
+	string
+	ข้อมูลซอย
+	organization.address.street
+	string
+	ข้อมูลถนน
+	organization.address.province
+	string
+	ข้อมูลจังหวัด
+	organization.address.district
+	string
+	ข้อมูลอำเภอ
+	organization.address.sub_district
+	string
+	ข้อมูลตำบล
+	organization.address.zip_code
+	string
+	ข้อมูลรหัสไปรษณีย์
+	organization.position_type
+	string
+	ข้อมูลตำแหน่ง
+	
+
+
+
+ตัวอย่าง Response Body:
+
+
+200 OK
+ {
+    "status": 200,
+    "message": "OK",
+    "data": {
+        "account_id": "544xxxxxxxx5794",
+        "hash_cid": "7a5635c12063210ec4cb9ea689709541a0d474890e38813e78c566e09f8f6aa7",
+        "provider_id": "0111111111X21",
+        "title_th": null,
+        "special_title_th": "นายแพทย์",
+        "name_th": "หมอพร้อม สงบสุข",
+        "name_eng": "Mophrom Eng",
+        "created_at": "2024-03-20T08:39:29.000Z",
+        "title_en": null,
+        "special_title_en": "DR.(Male)",
+        "firstname_th": "หมอพร้อม",
+        "lastname_th": "สงบสุข",
+        "firstname_en": "Mophrom",
+        "lastname_en": "Eng",
+        "organization": [
+            {
+                "business_id": "987654321098765",
+                "position": "แพทย์",
+                "affiliation": "แพทย์",
+                "license_id": "12345",
+                "hcode": "XXXXX",
+                "code9": "00XXXXX00",
+                "hcode9": "XX0000000",
+                "level": "1",
+                "hname_th": "สำนักดิจิทัลฮา",
+                "hname_eng": "Provincial Public Ha Office",
+                "tax_id": "0123456789123",
+                "license_expired_date": null,
+           "license_id_verify": true,
+                "expertise": "สูติศาสตร์และนรีเวชวิทยา",
+                "expertise_id": "113",
+                "moph_station_ref_code": null,
+                "is_private_provider": false,
+                "address": {
+                    "address": "อาคารหมอพร้อม",
+                    "moo": null,
+                    "building": null,
+                    "soi": null,
+                    "street": null,
+                    "province": "นนทบุรี",
+                    "district": "เมืองนนทบุรี",
+                    "sub_district": "ตลาดขวัญ",
+                    "zip_code": "11000"
+                },
+        "is_hr_admin": true,
+"is_director": true,
+                "moph_access_token_idp": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdW …",
+                "moph_access_token_idp_fdh": "eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOi …",
+                "moph_access_token_idp_pcu": null
+"position_type": "แพทย์"
+            }, …
+                  ]
+    }
+}
+
+
+Error code
+
+
+Code
+	Message
+	Description
+	400
+	The requested parameter can not used.
+	ไม่ได้ระบุ access_token ,Client-ID หรือ Secret-Key 
+	401
+	access_token is invalid
+	access_token ไม่ถูกต้อง
+	401
+	Authentication is required to access this resource
+	ไม่พบ client_id secret_key ในระบบ หรือไม่ตรงกัน
+	404
+	This user has no provider id
+	ไม่พบข้อมูล provider id
+	404
+	The requested resource was not found
+	ข้อมูลไม่สมบูรณ์
+	500
+	Internal Server Error
+	เซิฟเวอร์มีปัญหา กรุณาติดต่อผู้ดูแลระบบ
+	503
+	The service is temporarily unavailable. Please try again later.
+	ระบบที่เชื่อมต่อมีปัญหา กรุณาติดต่อผู้ดูแลระบบ
+	________________
+3. API สำหรับขอ Public Key ของ Provider ID
+POST
+	{Provider-URL}/api/v1/services/public-key
+	
+
+Request
+Request Body (JSON): 
+
+
+พารามิเตอร์ (Parameters)
+	จำเป็น
+(Requires)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	client_id
+	Y
+	string
+	Client-ID ที่ได้รับจากระบบ Provider ID
+	secret_key
+	Y
+	string
+	Secret-Key ที่ได้รับจากระบบ Provider ID
+	
+
+Response
+Response Type: plain/text
+
+
+พารามิเตอร์ (Parameters)
+	ประเภทข้อมูล (type)
+	คำอธิบาย (Description)
+	public key
+	string
+	Public Key
+	
+
+ตัวอย่าง Response Body:
+
+
+200 OK 
+-----BEGIN PUBLIC KEY-----
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+OpnddMRKQ5+YrduRVb0e5Ffc5FofH67at0yq/g8ilCW/vdSi0F+4Nne1Aru
+u3gyz2OP+c7NHrStA3b/FV5nHnu3zzkXiUB3sGvt5FWxUvzEF83grkS+m7
+d9A1dXskDr0xE1BIw1rv2KzJ92aWoizsv0MPj9f6TZSwQ5zQxlvoiHozjJWZa
+JKQTZyCZXVylKuvGuD/vdmNBosLOS0x2GM5uUgFtlSwB/2Z0dtpaLTuwqx
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+-----END PUBLIC KEY-----
+
+
+
+
+Error code
+
+
+Code
+	message
+	message_th
+	401
+	Authentication is required to access this resource
+	Client id , Secret key ไม่ถูกต้อง
+	500
+	Internal Server Error
+	เซิฟเวอร์มีปัญหา

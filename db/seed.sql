@@ -1,0 +1,3 @@
+-- hosp_kpis installer placeholder
+-- The production installer falls back to db/hospital_kpi.sql when this file has no executable SQL.
+-- Replace this file with seed-only INSERT statements if you want a dedicated seed artifact.
