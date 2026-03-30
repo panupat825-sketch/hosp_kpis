@@ -63,7 +63,7 @@ if (!function_exists('kpi_page_header')) {
 
         echo '<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">';
         echo '<div>';
-        echo '<div class="enterprise-kicker mb-3"><span class="inline-flex h-2 w-2 rounded-full bg-teal-500"></span>Enterprise KPI Workspace</div>';
+        echo '<div class="enterprise-kicker mb-3"><span class="inline-flex h-2 w-2 rounded-full bg-teal-500"></span>ระบบบริหารตัวชี้วัด KPI</div>';
         echo '<h1 class="enterprise-page-title font-semibold tracking-tight">' . h($title) . '</h1>';
         if ($subtitle !== '') {
             echo '<p class="enterprise-page-subtitle mt-3 text-sm sm:text-base">' . h($subtitle) . '</p>';
@@ -86,8 +86,8 @@ if (!function_exists('kpi_page_header')) {
       <a href="dashboard.php" class="flex items-center gap-4 font-semibold tracking-wide min-w-0">
         <span class="enterprise-nav-brand-badge inline-flex items-center justify-center w-11 h-11 rounded-2xl text-slate-950 font-extrabold">KPI</span>
         <span class="enterprise-nav-brand min-w-0 leading-tight">
-          <span class="block text-[0.68rem] uppercase tracking-[0.24em] text-cyan-200/90">Enterprise Performance</span>
-          <span class="block text-sm sm:text-base truncate">โรงพยาบาลศรีรัตนะ</span>
+          <span class="block text-[0.68rem] uppercase tracking-[0.24em] text-cyan-200/90">KPI Management System</span>
+          <span class="block text-sm sm:text-base truncate">ระบบบริหารตัวชี้วัด KPI</span>
         </span>
       </a>
 

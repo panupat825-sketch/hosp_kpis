@@ -40,7 +40,7 @@ $reason_info = isset($reasons[$reason]) ? $reasons[$reason] : $reasons['unknown'
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Access Policy | KPI Enterprise</title>
+    <title>การเข้าถึงระบบ | ระบบบริหารตัวชี้วัด KPI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/enterprise-ui.css">
 </head>
@@ -67,7 +67,7 @@ $reason_info = isset($reasons[$reason]) ? $reasons[$reason] : $reasons['unknown'
                         <section class="enterprise-section p-5">
                             <div class="text-sm font-semibold text-slate-800">สิ่งที่ควรตรวจสอบ</div>
                             <ul class="mt-3 space-y-2 text-sm leading-7 text-slate-600">
-                                <li>บัญชี Health ID ที่ใช้เข้าสู่ระบบเป็นบัญชีที่ถูกต้อง</li>
+                                <li>บัญชี Provider ID ที่ใช้เข้าสู่ระบบเป็นบัญชีที่ถูกต้อง</li>
                                 <li>environment ที่กำลังทดสอบตรงกับ environment ของสิทธิ์ที่มี</li>
                                 <li>บัญชีนี้ได้รับ role และสถานะ active แล้วในระบบภายใน</li>
                             </ul>

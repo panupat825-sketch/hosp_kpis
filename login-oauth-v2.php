@@ -50,7 +50,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'start') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบ KPI</title>
+    <title>เข้าสู่ระบบ | ระบบบริหารตัวชี้วัด KPI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/enterprise-ui.css">
 </head>
@@ -69,8 +69,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'start') {
                     <div class="mt-8 grid gap-4 sm:grid-cols-3">
                         <div class="enterprise-metric">
                             <div class="text-sm text-slate-500">Authentication</div>
-                            <div class="mt-2 text-xl font-semibold text-slate-950">Health ID</div>
-                            <div class="mt-1 text-sm text-slate-500">Single sign-on พร้อม OTP</div>
+                            <div class="mt-2 text-xl font-semibold text-slate-950">Provider ID</div>
+                            <div class="mt-1 text-sm text-slate-500">ยืนยันตัวตนสำหรับการเข้าใช้งานระบบ</div>
                         </div>
                         <div class="enterprise-metric">
                             <div class="text-sm text-slate-500">Governance</div>
@@ -87,16 +87,16 @@ if (isset($_GET['action']) && $_GET['action'] === 'start') {
 
                 <section class="enterprise-panel p-8 sm:p-10">
                     <div class="inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-teal-500 to-sky-700 text-2xl text-white shadow-lg shadow-teal-500/20">K</div>
-                    <h2 class="mt-6 text-3xl font-semibold text-slate-950">เข้าสู่ระบบ KPI</h2>
+                    <h2 class="mt-6 text-3xl font-semibold text-slate-950">เข้าสู่ระบบบริหารตัวชี้วัด KPI</h2>
                     <p class="mt-3 text-sm leading-7 text-slate-500">
-                        ใช้บัญชี Health ID เพื่อยืนยันตัวตนและเข้าสู่ระบบจัดการตัวชี้วัดขององค์กรอย่างปลอดภัย
+                        ใช้บัญชี Provider ID เพื่อยืนยันตัวตนและเข้าสู่ระบบบริหารตัวชี้วัด KPI อย่างปลอดภัย
                     </p>
 
                     <div class="mt-8 rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
                         <div class="text-sm font-semibold text-slate-700">สิ่งที่ระบบจะทำหลังยืนยันตัวตน</div>
                         <ul class="mt-3 space-y-3 text-sm text-slate-600">
-                            <li>ยืนยันตัวตนด้วย OTP ผ่าน Health ID</li>
-                            <li>สร้าง session สำหรับเข้าใช้งานระบบ KPI ของคุณ</li>
+                            <li>ยืนยันตัวตนผ่าน Provider ID</li>
+                            <li>สร้าง session สำหรับเข้าใช้งานระบบบริหารตัวชี้วัด KPI</li>
                             <li>พาเข้าสู่หน้าเริ่มต้นของระบบโดยอัตโนมัติ</li>
                         </ul>
                     </div>
@@ -105,7 +105,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'start') {
                         <form action="<?php echo htmlspecialchars($loginActionUrl, ENT_QUOTES, 'UTF-8'); ?>" method="get" class="relative z-20 block">
                             <input type="hidden" name="action" value="start">
                             <button type="submit" class="enterprise-button enterprise-button-primary relative z-20 w-full justify-center text-base" style="pointer-events:auto;cursor:pointer;">
-                                เข้าสู่ระบบด้วย Health ID
+                                เข้าสู่ระบบด้วย Provider ID
                             </button>
                         </form>
                         <form action="<?php echo htmlspecialchars($indexUrl, ENT_QUOTES, 'UTF-8'); ?>" method="get" class="relative z-20 block">

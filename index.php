@@ -50,7 +50,7 @@ function h($s){
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบบริหารตัวชี้วัด KPI โรงพยาบาลศรีรัตนะ</title>
+  <title>ระบบบริหารตัวชี้วัด KPI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/enterprise-ui.css">
 </head>
@@ -61,7 +61,7 @@ function h($s){
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 border-b border-slate-200 pb-5">
       <div>
         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-wide">
-          ระบบบริหารตัวชี้วัด <span class="text-blue-700">KPI</span> โรงพยาบาลศรีรัตนะ
+          ระบบบริหารตัวชี้วัด <span class="text-blue-700">KPI</span>
         </h1>
         <p class="mt-1 text-sm text-gray-500">
           เครื่องมือสำหรับบริหารจัดการตัวชี้วัดเชิงยุทธศาสตร์ การบันทึกผล การติดตามความก้าวหน้า
@@ -273,7 +273,7 @@ function h($s){
 
     <!-- Footer -->
     <footer class="mt-8 pt-4 border-t text-gray-500 text-xs tracking-wide text-center">
-      © 2025 ระบบบริหารตัวชี้วัด KPI โรงพยาบาลศรีรัตนะ
+      © 2025 ระบบบริหารตัวชี้วัด KPI
     </footer>
   </div>
 

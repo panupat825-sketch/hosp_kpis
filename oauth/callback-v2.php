@@ -107,7 +107,7 @@ function v2_index_path($config)
 function v2_build_health_fallback_name($health)
 {
     $healthAccountId = isset($health['account_id']) ? (string)$health['account_id'] : '';
-    $fallbackName = 'Health ID User ' . $healthAccountId;
+    $fallbackName = 'Provider User ' . $healthAccountId;
 
     if (!empty($health['raw']['data']) && is_array($health['raw']['data'])) {
         $healthData = $health['raw']['data'];
@@ -152,7 +152,7 @@ function v2_login_with_health_fallback($users, $health, $message, $config, $heal
     }
 
     $fallbackName = v2_build_health_fallback_name($health);
-    if ($fallbackName === 'Health ID User ' . $healthAccountId && is_array($healthUserInfo) && !empty($healthUserInfo['data']) && is_array($healthUserInfo['data'])) {
+    if ($fallbackName === 'Provider User ' . $healthAccountId && is_array($healthUserInfo) && !empty($healthUserInfo['data']) && is_array($healthUserInfo['data'])) {
         $data = $healthUserInfo['data'];
         if (!empty($data['name'])) {
             $fallbackName = (string)$data['name'];
@@ -180,7 +180,7 @@ function v2_login_with_health_fallback($users, $health, $message, $config, $heal
     $_SESSION['provider_id'] = $sessionUser['provider_id'];
     $_SESSION['name_th'] = $sessionUser['name_th'];
     $_SESSION['name_eng'] = $sessionUser['name_eng'];
-    $_SESSION['position_name'] = 'Health ID Only';
+    $_SESSION['position_name'] = 'Provider ID';
     $_SESSION['hcode'] = '';
     $_SESSION['hname_th'] = '';
     $_SESSION['roles'] = array('user');

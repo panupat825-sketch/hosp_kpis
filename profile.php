@@ -169,7 +169,7 @@ mysqli_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรไฟล์ผู้ใช้งาน | KPI Enterprise</title>
+    <title>โปรไฟล์ผู้ใช้งาน | ระบบบริหารตัวชี้วัด KPI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/enterprise-ui.css">
 </head>
@@ -180,7 +180,7 @@ include __DIR__ . '/navbar_kpi.php';
 
 kpi_page_header(
     'โปรไฟล์ผู้ใช้งาน',
-    'หน้านี้แสดงทั้งข้อมูลบัญชีในระบบ และข้อมูลตัวตนที่ระบบได้รับจาก Health ID / Provider เพื่อให้ตรวจสอบ mapping ได้จากหน้าเดียว',
+    'หน้านี้แสดงข้อมูลบัญชีในระบบและข้อมูลตัวตนจาก Provider ID เพื่อให้ตรวจสอบการเชื่อมโยงข้อมูลได้จากหน้าเดียว',
     array(
         array('label' => 'หน้าแรก', 'href' => 'index.php'),
         array('label' => 'โปรไฟล์ผู้ใช้งาน')
@@ -208,7 +208,7 @@ kpi_page_header(
                     <?php echo $message_type === 'error' ? 'ต้องตรวจสอบ' : 'พร้อมใช้งาน'; ?>
                 </span>
             </div>
-            <div class="mt-2 text-sm text-slate-500"><?php echo h($healthOnlyLogin ? 'Health ID Only fallback mode' : 'ใช้ข้อมูลจาก Provider / Session ปัจจุบัน'); ?></div>
+            <div class="mt-2 text-sm text-slate-500"><?php echo h($healthOnlyLogin ? 'โหมดสำรองชั่วคราว' : 'ใช้ข้อมูลจาก Provider ID / Session ปัจจุบัน'); ?></div>
         </div>
     </section>
 
@@ -221,7 +221,7 @@ kpi_page_header(
 
         <?php if ($healthOnlyLogin && $healthOnlyReason !== ''): ?>
             <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                กำลังใช้โหมด Health ID Only ชั่วคราว
+                กำลังใช้โหมดสำรองชั่วคราว
                 <div class="mt-1 break-words font-mono text-xs"><?php echo h($healthOnlyReason); ?></div>
             </div>
         <?php endif; ?>
@@ -255,7 +255,7 @@ kpi_page_header(
                 'ตำแหน่ง' => $resolvedPosition !== '' ? $resolvedPosition : '-',
                 'หน่วยบริการ (HCODE)' => $hcode !== '' ? $hcode : '-',
                 'ชื่อหน่วยบริการ' => $hnameTh !== '' ? $hnameTh : '-',
-                'โหมดการเข้าสู่ระบบ' => $healthOnlyLogin ? 'Health ID Only fallback' : 'Provider / PRD',
+                'โหมดการเข้าสู่ระบบ' => $healthOnlyLogin ? 'สำรองชั่วคราว' : 'Provider ID',
             ),
             'ข้อมูลจาก Provider' => array(
                 'provider_id' => isset($providerPayload['provider_id']) ? $providerPayload['provider_id'] : '-',
